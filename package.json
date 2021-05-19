@@ -1,7 +1,7 @@
 {
   "name": "pipe-transaction",
   "version": "1.0.0",
-  "description": "The official library for managing multi-stage operations./nSupport async actions",
+  "description": "The official library for managing multi-stage operations. Support async actions",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -36,6 +36,9 @@
     "start",
     "point",
     "case",
+    "typescript",
+    "failsafe",
+    "retry",
     "error",
     "successfully",
     "successes\\"
