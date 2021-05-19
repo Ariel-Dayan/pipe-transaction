@@ -1,22 +1,5 @@
 # Welcome to pipe-transaction 👋
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)
-[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](#)
-
-<!-- # pipe-transaction -->
-
-[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency status][david-dm-image]][david-dm-url] [![Dev Dependency status][david-dm-dev-image]][david-dm-dev-url] [![Greenkeeper badge][greenkeeper-image]][greenkeeper-url]
-
-[npm-url]:https://npmjs.org/package/promise-retry
-[downloads-image]:http://img.shields.io/npm/dm/promise-retry.svg
-[npm-image]:http://img.shields.io/npm/v/promise-retry.svg
-[travis-url]:https://travis-ci.org/IndigoUnited/node-promise-retry
-[travis-image]:http://img.shields.io/travis/IndigoUnited/node-promise-retry/master.svg
-[david-dm-url]:https://david-dm.org/IndigoUnited/node-promise-retry
-[david-dm-image]:https://img.shields.io/david/IndigoUnited/node-promise-retry.svg
-[david-dm-dev-url]:https://david-dm.org/IndigoUnited/node-promise-retry?type=dev
-[david-dm-dev-image]:https://img.shields.io/david/dev/IndigoUnited/node-promise-retry.svg
-[greenkeeper-image]:https://badges.greenkeeper.io/IndigoUnited/node-promise-retry.svg
-[greenkeeper-url]:https://greenkeeper.io/
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000) [![License: ISC](https://img.shields.io/badge/License-MIT-yellow.svg)](#) 
 
 pipe-transaction is the official library for managing multi-stage operations.
 
@@ -34,30 +17,93 @@ The library is very easy to use and allows for a wide range of different setting
 
 ## Installation
 
-`$ npm install pipe-transaction`
+```bash 
+$ npm install pipe-transaction
+```
 
+## Importing
+
+```javascript
+// Using Node.js `require()`
+const { Transaction } = require('pipe-transaction');
+
+// Using ES6 imports
+import { Transaction } from 'pipe-transaction';
+```
 
 ## Usage
 
-### promiseRetry(fn, [options])
+### new Transaction([options], [actions])
 
-Calls `fn` until the returned promise ends up fulfilled or rejected with an error different than
-a `retry` error.   
-The `options` argument is an object which maps to the [retry](https://github.com/tim-kos/node-retry) module options:
+Create a new `Transaction` instance.
+`options`(optional) - an object that include the setting of the `Transaction` instance. (see below for options). 
+- `showLogs`: Boolean. Allow the library to write errors & information message to the console. Default is `true`.
+- `autoIdGenerate`: Boolean. Allow the library to generate automatic number id for the actions, start from `0`. Default is `false`.
+- `continueOnUndoError`:  Boolean. When an action failed, Allow the library to continue all relevant undo functions if an undo function failed. Defult `true`.
+- `retryOptions`: An object which maps to the [retry](https://github.com/tim-kos/node-retry) module options:
+    - `retries`: Number. The maximum amount of times to retry the operation. Default is `10`.
+    - `factor`: Number. The exponential factor to use. Default is `2`.
+    - `minTimeout`: Number. The number of milliseconds before starting the first retry. Default is `1000`.
+    - `maxTimeout`: Number. The maximum number of milliseconds between two retries. Default is `Infinity`.
+    - `randomize`: Boolean. Randomizes the timeouts by multiplying with a factor between `1` to `2`. Default is `false`.
+    - `errorRetryHandler`: Function. Custom callback that should be called if retry of an action is failed. The `errorRetryHandler` function will receive two argument: first `retyNumber` - The number of failed retries, start from `0`, second `transactionsInfo` - Object that describe the transactions statues (see below for `transactionsInfo` structure).
 
-- `retries`: The maximum amount of times to retry the operation. Default is `10`.
-- `factor`: The exponential factor to use. Default is `2`.
-- `minTimeout`: The number of milliseconds before starting the first retry. Default is `1000`.
-- `maxTimeout`: The maximum number of milliseconds between two retries. Default is `Infinity`.
-- `randomize`: Randomizes the timeouts by multiplying with a factor between `1` to `2`. Default is `false`.
+`actions`(optional) - an array of an `action` description (see below for `action` structure).
 
+### exec()
 
-The `fn` function will receive a `retry` function as its first argument that should be called with an error whenever you want to retry `fn`. The `retry` function will always throw an error.   
-If there are retries left, it will throw a special `retry` error that will be handled internally to call `fn` again.
-If there are no retries left, it will throw the actual error passed to it.
+Execute the actions pipeline. Return `result` object (see below for `result` structure) if all the actions success or if action failed but all the relevant undo actions success. Throw `result` object if an actions failed and at least relevant unto action failed.
 
-If you prefer, you can pass the options first using the alternative function signature `promiseRetry([options], fn)`.
+## Models
+```js
+action - {
+    action: ( transactionsInfo: transactionsInfo, actionArgs?: object) => any
+    actionArgs: {} // You pass (optional)
+    undoArgs: {} // You pass (optional)
+    undo?: (error: Error, transactionsInfo: transactionsInfo, undoArgs?: object) => any
+}
 
+transactionsInfo = {
+    transactions: action[],
+    currentTransaction: action,
+    previousResponses: { [id]: value },
+    previousUndoResponses?: { [id]: value }
+}
+
+ result = {
+    isSuccess: Boolean, // If an action failed - false  
+    actionsInfo: {
+        responses: {
+            [id]: value
+        }
+        errorInfo?: { // If an action failed
+            index: number,
+            id: string | number,
+            error: Error
+        }
+    },
+    undoInfo?: { // if isSuccess === false
+        responses: {
+            [id]: value
+        },
+        errorInfo?: [ // / If an undo action failed
+            {
+                index: number,
+                id: string | number,
+                error: Error
+            }
+        ]
+    }
+}
+```
+
+## Method
+- `clear()` - Clear the transaction instance from actions
+- `isValidAction(action)` - Check if an action is valid. Return array of erros message
+- `append(action)` - Append an action to the actions list
+- `appendArray(action[])` - Append actions to the actions list
+- `remove(id)` - Remove an action from the actions list
+- `getTransactions()` - Get all the actions
 ## Example
 ```js
 const Transaction = require('pipe-transaction');
@@ -104,6 +150,12 @@ const transaction = new Transaction({
 
 transaction.exec()
     .then(result => {
+        if(result.isSuccess) 
+            console.log("The transaction success, all actions done");
+        else 
+            console.log("The transaction failed, not all actions done, 
+                undo actions were executed");
+                
         // result = {
         //     isSuccess: false,
         //     actionsInfo: {
@@ -129,13 +181,10 @@ transaction.exec()
         //          }   
         //     }
         // }
-        
-        if(result.isSuccess) 
-            console.log("The transaction success, all actions done");
-        else 
-            console.log("The transaction failed, not all actions done, 
-                undo actions were executed");
     }).catch(result => {
+        console.log("The transaction failed, not all actions done, undo 
+                actions were executed, and also failed");
+                
         // result = {
         //     isSuccess: false,
         //     actionsInfo: {
@@ -167,9 +216,6 @@ transaction.exec()
         //          ]
         //     }
         // }
-        
-        console.log("The transaction failed, not all actions done, undo 
-                actions were executed, and also failed");
     });
     
 transaction .clear();
@@ -219,8 +265,14 @@ transaction.append({
 
 transaction.exec()
     .then(result => {
+        if(result.isSuccess) 
+            console.log("The transaction success, all actions done");
+        else 
+            console.log("The transaction failed, not all actions done, 
+                undo actions were executed");
+                
         // result = {
-        //     isSuccess: false,
+        //     isSuccess: true,
         //     actionsInfo: {
         //          responses: {
         //              start: undefined,
@@ -229,28 +281,13 @@ transaction.exec()
         //                  starus: "InProgress"
         //              },
         //              saveInDb: "1234",
-        //          },
-        //          errorInfo: {
-        //              index: 3,
-        //              id: "notifyEnd",
-        //              error: Error
         //          }
         //     },
-        //     undoInfo: {
-        //         responses: {
-        //              start: undefined,
-        //              notifyInProgress: "Successfuly notify failed",
-        //              saveInDb: undefined,
-        //          }   
-        //     }
         // }
-        
-        if(result.isSuccess) 
-            console.log("The transaction success, all actions done");
-        else 
-            console.log("The transaction failed, not all actions done, 
-                undo actions were executed");
     }).catch(result => {
+        console.log("The transaction failed, not all actions done, undo 
+                actions were executed, and also failed");
+                
         // result = {
         //     isSuccess: false,
         //     actionsInfo: {
@@ -282,9 +319,6 @@ transaction.exec()
         //          ]
         //     }
         // }
-        
-        console.log("The transaction failed, not all actions done, undo 
-                actions were executed, and also failed");
     });
 
 transaction .clear();

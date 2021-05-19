@@ -22,4 +22,6 @@ export {
     IRetry,
     ErrorRetryHandler,
     Transaction
-}
+};
+
+export default Transaction;

@@ -28,14 +28,14 @@ export default class Transaction {
     responses: IResponsesObj
     undoResponses: IResponsesObj
 
-    constructor(options: IOptions, actions?: IUserTransactionObj[]) {
+    constructor(options?: IOptions, actions?: IUserTransactionObj[]) {
         this.showLogs = options?.showLogs || config.showLogs;
         this.autoIdGenerate = options?.autoIdGenerate || config.autoIdGenerate;
         this.continueOnUndoError = options?.continueOnUndoError || config.continueOnUndoError;
 
         if(options?.retryOptions) {
-            this.errorRetryHandler = options?.retryOptions?.errorActionHandler || this.defultErrorRetryHandler;
-            delete options.retryOptions.errorActionHandler;
+            this.errorRetryHandler = options?.retryOptions?.errorRetryHandler || this.defultErrorRetryHandler;
+            delete options.retryOptions.errorRetryHandler;
         } else {
             this.errorRetryHandler = this.defultErrorRetryHandler; 
         }

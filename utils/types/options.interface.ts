@@ -9,7 +9,7 @@ export interface IOptions {
 }
 
 export interface IRetry extends OperationOptions {
-    errorActionHandler?: ErrorRetryHandler;
+    errorRetryHandler?: ErrorRetryHandler;
 }
 
 export type ErrorRetryHandler = (retyNumber: number, transactionsInfo: ITransactionInfo) => void
