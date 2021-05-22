@@ -1,8 +1,8 @@
 {
   "name": "pipe-transaction",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "The official library for managing multi-stage operations. Support async actions",
-  "main": "index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
