@@ -1,7 +1,7 @@
 export type ID = string | number
 
 export interface ITransactionObj {
-    action: ( transactionsInfo?: ITransactionInfo, actionArgs?: object) => any
+    action: ( transactionsInfo: ITransactionInfo, actionArgs?: object) => any
     actionArgs?: object,
     undoArgs?: object,
     undo?: (error: Error, transactionsInfo: ITransactionInfo, undoArgs?: object) => any

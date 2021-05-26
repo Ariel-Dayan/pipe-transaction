@@ -179,9 +179,9 @@ export default class Transaction {
         this.clearResponses();
         
         if(failedUndoActions.length) {
-            result.undoInfo.errorInfo = this.continueOnUndoError ? failedUndoActions : failedUndoActions[0];
+            fullResult.undoInfo.errorInfo = this.continueOnUndoError ? failedUndoActions : failedUndoActions[0];
             
-            throw result;
+            throw fullResult;
         }
 
         return fullResult;
