@@ -326,7 +326,7 @@ transaction .clear();
 pipe-transaction is written in Typescript and supports it perfectly!
 
 
-### 🏠 [Homepage](https://gitlab.com/ArielDayan/pipe-transaction#readme)
+### 🏠 [Homepage](https://github.com/Ariel-Dayan/pipe-transaction#readme)
 
 
 ## Author
@@ -338,7 +338,7 @@ pipe-transaction is written in Typescript and supports it perfectly!
 
 Issues and feature requests are welcome!
 
-Feel free to check [issues page](https://gitlab.com/ArielDayan/pipe-transaction/issues)
+Feel free to check [issues page](https://github.com/Ariel-Dayan/pipe-transaction/issues)
 
 ## Show your support
 
