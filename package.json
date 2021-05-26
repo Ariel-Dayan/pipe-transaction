@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "The official library for managing multi-stage operations. Support async actions",
   "main": "index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "prepublish": "npm run build",
     "build:watch": "tsc --watch",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -42,7 +44,7 @@
     "error",
     "successfully",
     "es6",
-    "successes\\"
+    "successes"
   ],
   "author": "Ariel Dayan",
   "license": "MIT",
