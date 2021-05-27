@@ -1,7 +1,7 @@
 export default {
     retryOptions: {
         retries: 3,
-        factor: 1.5
+        factor: 2
     },
     showLogs: true,
     autoIdGenerate: false,
