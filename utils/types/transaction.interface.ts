@@ -4,7 +4,7 @@ export interface ITransactionObj {
     action: ( transactionsInfo: ITransactionInfo, actionArgs?: object) => any
     actionArgs?: object,
     undoArgs?: object,
-    undo?: (error: Error, transactionsInfo: ITransactionInfo, undoArgs?: object) => any
+    undo?: (error: any, transactionsInfo: ITransactionInfo, undoArgs?: object) => any
 }
 
 export interface IUserTransactionObj extends ITransactionObj {

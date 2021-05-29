@@ -1,15 +1,15 @@
 # Welcome to pipe-transaction 👋
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000) [![License: ISC](https://img.shields.io/badge/License-MIT-yellow.svg)](#) 
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#) ![Stars](https://img.shields.io/github/stars/Ariel-Dayan/pipe-transaction) [![npm version](https://badge.fury.io/js/pipe-transaction.svg)](https://badge.fury.io/js/pipe-transaction)
 
 pipe-transaction is the official library for managing multi-stage operations.
 
-pipe-transaction designed to easly deal with common situation which you are want to perform number of related actions. This process will be considered a success only if **all** the actions performed. 
+pipe-transaction designed to easily deal with common situations that you are want to perform several related actions. This process will be considered a success only if **all** the actions are performed. 
 
-In another hand, if any process fails along the way - the situation became complicated.in this case you want to be able to return to the initial state as much as another state as a result of the failure. For this purpose excecly pipe-transaction developed.
+In another hand, if any process fails along the way - the situation became complicated. In this case, you want to be able to return to the initial state as much as another state as a result of the failure. For this purpose exactly, pipe-transaction developed.
 
-For example, if you want to update the database through CRUD API, after execute action (such as saving a file), pipe-transaction help you to return to the initial state (delete the file) if the database update failed.
+For example, if you want to update the database through CRUD API, after executing action (such as saving a file), pipe-transaction helps you to return to the initial state (delete the file) if the database update failed.
 
-The library is very easy to use and allow wide range of different options. pipe-transaction support async & sync actions at once.
+The library is very easy to use and allows a wide range of different options. pipe-transaction support async & sync actions at once.
 
 > The official library for managing multi-stage operations.
 
@@ -34,31 +34,31 @@ import { Transaction } from 'pipe-transaction';
 ### new Transaction([options], [actions])
 
 Create a new `Transaction` instance.
-`options`(optional) - an object that include the setting of the `Transaction` instance. 
-- `showLogs`: Boolean. Allow the library to write errors & information message to the console. Default is `true`.
-- `autoIdGenerate`: Boolean. Allow the library to generate automatic number id for the actions, start from `0`. Default is `false`.
-- `continueOnUndoError`:  Boolean. When an action failed, Allow the library to continue execute all relevant undo functions, even if an undo function failed. Defult `true`.
+`options`(optional) - an object that includes the setting of the `Transaction` instance. 
+- `showLogs`: Boolean. Allow the library to write errors & information messages to the console. Default is `true`.
+- `autoIdGenerate`: Boolean. Allow the library to generate an automatic number id for the actions, start from `0`. Default is `false`.
+- `continueOnUndoError`:  Boolean. When an action failed, Allow the library to continue to execute all relevant undo functions, even if an undo function failed. Default `true`.
 - `retryOptions`: An object which maps to the [retry](https://github.com/tim-kos/node-retry) module options:
     - `retries`: Number. The maximum amount of times to retry the operation. Default is `3`.
     - `factor`: Number. The exponential factor to use. Default is `2`.
     - `minTimeout`: Number. The number of milliseconds before starting the first retry. Default is `1000`.
     - `maxTimeout`: Number. The maximum number of milliseconds between two retries. Default is `Infinity`.
     - `randomize`: Boolean. Randomizes the timeouts by multiplying with a factor between `1` to `2`. Default is `false`.
-    - `errorRetryHandler`: Function. Custom callback function that should be called if retry of an action is failed. The `errorRetryHandler` function received two argument: First `retyNumber` - The number of failed retries, start from `0`. Second `transactionsInfo` - Object that describe the transactions statues (see below for `transactionsInfo` structure).
+    - `errorRetryHandler`: Function. Custom callback function that should be called if retry of action is failed. The `errorRetryHandler` function received two arguments: First `retyNumber` - The number of failed retries, starts from `0`. Second `transactionsInfo` - Object that describe the transactions statues (see below for `transactionsInfo` structure).
 
 `actions`(optional) - Array of `actions` description (see below for `action` structure).
 
 ### exec()
 
-Execute the actions pipeline. Return `result` object (see below for `result` structure) if all the actions success, or if action failed but all the relevant undo actions success. Throw `result` object if an actions failed and at least relevant unto action failed.
+Execute the actions pipeline. Return `result` object (see below for `result` structure) if all the actions succeed, or if an action failed but all the relevant undo actions succeed. Throw `result` object if an action failed and at least a relevant unto action failed.
 
 ## Models
 ```js
-action - {
+action = {
     action: ( transactionsInfo: transactionsInfo, actionArgs?: object) => any
     actionArgs: {} // Any (optional)
     undoArgs: {} // Any (optional)
-    undo?: (error: Error, transactionsInfo: transactionsInfo, undoArgs?: object) => any
+    undo?: (error: any, transactionsInfo: transactionsInfo, undoArgs?: object) => any
 }
 
 transactionsInfo = {
@@ -123,7 +123,7 @@ const transaction = new Transaction({
         action: (transactionsInfo, actionArgs) =>
             notifyInProgress(actionArgs.id),
         // Just an async function, using undoArgs
-        undo: (transactionsInfo, undoArgs) => notifyFailed(undoArgs.id) 
+        undo: (error, transactionsInfo, undoArgs) => notifyFailed(undoArgs.id) 
     },
     {
         id: "saveInDb"
@@ -132,7 +132,7 @@ const transaction = new Transaction({
              transactionsInfo.previousResponses["notifyInProgress"]
         ),
         // Just an async function, using previousResponses
-        undo: (transactionsInfo) => deleteInDb(
+        undo: (error, transactionsInfo) => deleteInDb(
              transactionsInfo.previousResponses["notifyInProgress"].id
         ),
     },
@@ -237,7 +237,7 @@ transaction.appendArray([
         action: (transactionsInfo, actionArgs) =>
             notifyInProgress(actionArgs.id),
         // Just an async function, using undoArgs
-        undo: (transactionsInfo, undoArgs) => notifyFailed(undoArgs.id) 
+        undo: (error, transactionsInfo, undoArgs) => notifyFailed(undoArgs.id) 
     },
     {
         id: "saveInDb"
@@ -246,7 +246,7 @@ transaction.appendArray([
              transactionsInfo.previousResponses["notifyInProgress"]
         ),
         // Just an async function, using previousResponses
-        undo: (transactionsInfo) => deleteInDb(
+        undo: (error, transactionsInfo) => deleteInDb(
              transactionsInfo.previousResponses["notifyInProgress"].id
         ),
     }
